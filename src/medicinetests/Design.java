@@ -18,15 +18,15 @@ import medicinetests.model.General;
 public class Design extends javax.swing.JFrame {
 
     private final Timer timer;
-    int x = 0;
+    private int x = 0;
 
-    int countRightAnswers = 0;
+    private int countRightAnswers = 0;
 
-    ArrayList<Integer> btnNumber = new ArrayList<>();
+    private ArrayList<Integer> btnNumber = new ArrayList<>();
 
-    ArrayList<Boolean> answersState = new ArrayList<>();
+    private ArrayList<Boolean> answersState = new ArrayList<>();
 
-    ArrayList<String> answererList = new ArrayList<>();
+    private ArrayList<String> answererList = new ArrayList<>();
 
     public Design() {
         initComponents();
@@ -44,10 +44,11 @@ public class Design extends javax.swing.JFrame {
         makeProgram();
     }
 
-    public void saveData() {
+    private void saveData() {
         ArrayList<General> data = new ArrayList<>();
         data.addAll(MedicineTests.firstSection);
         data.addAll(MedicineTests.secondSection);
+        data.addAll(MedicineTests.thirdSection);
 
         int size = 0;
 
@@ -96,7 +97,7 @@ public class Design extends javax.swing.JFrame {
 //        }
     }
 
-    public void makeProgram() {
+    private void makeProgram() {
         rbtn1.setSelected(false);
         rbtn2.setSelected(false);
         rbtn3.setSelected(false);
@@ -105,7 +106,7 @@ public class Design extends javax.swing.JFrame {
 
         btn_answer.setEnabled(false);
 
-        if (btnNumber.size() == (MedicineTests.firstSection.size() + MedicineTests.secondSection.size())) {
+        if (btnNumber.size() == (MedicineTests.firstSection.size() + MedicineTests.secondSection.size() + MedicineTests.thirdSection.size())) {
             btn_end.doClick();
             return;
         }
@@ -136,39 +137,16 @@ public class Design extends javax.swing.JFrame {
             }
         }
 
-        label_counter.setText((x + 1) + " з " + (MedicineTests.firstSection.size() + MedicineTests.secondSection.size()));
+        label_counter.setText((x + 1) + " з " + (MedicineTests.firstSection.size() + MedicineTests.secondSection.size() + MedicineTests.thirdSection.size()));
 
         List<JRadioButton> radioButtons = Arrays.asList(rbtn1, rbtn2, rbtn3, rbtn4, rbtn5);
 
         if (x < 60) {
-            label_question.setText("<html><p style=\"width:530px\">" + MedicineTests.firstSection.get(x).getQuestion() + "</p></html>");
-
-            for (int i = 0; i < 5; i++) {
-                String answerWithBrackets = MedicineTests.firstSection
-                        .get(x)
-                        .getAnswers()
-                        .get(i)
-                        .keySet()
-                        .toString();
-
-                String answer = removeBrackets(answerWithBrackets);
-                radioButtons.get(i).setText(answer);
-            }
-
-        } else if (x >= 60) {
-            label_question.setText("<html><p style=\"width:530px\">" + MedicineTests.secondSection.get(x - MedicineTests.secondSection.size()).getQuestion() + "</p></html>");
-
-            for (int i = 0; i < 5; i++) {
-                String answerWithBrackets = MedicineTests.secondSection
-                        .get(x - MedicineTests.secondSection.size())
-                        .getAnswers()
-                        .get(i)
-                        .keySet()
-                        .toString();
-
-                String answer = removeBrackets(answerWithBrackets);
-                radioButtons.get(i).setText(answer);
-            }
+            setTextToComponents(MedicineTests.firstSection, radioButtons, x);
+        } else if (x >= 60 && x < 120) {
+            setTextToComponents(MedicineTests.secondSection, radioButtons, x - MedicineTests.secondSection.size());
+        } else if (x >= 120) {
+            setTextToComponents(MedicineTests.thirdSection, radioButtons, x - (MedicineTests.secondSection.size() + MedicineTests.thirdSection.size()));
         }
     }
 
@@ -286,8 +264,8 @@ public class Design extends javax.swing.JFrame {
         btn_back.setBackground(new java.awt.Color(0, 0, 0));
         btn_back.setFont(new java.awt.Font("Roboto Light", 0, 12)); // NOI18N
         btn_back.setForeground(new java.awt.Color(255, 255, 255));
+        btn_back.setText("Повернутися");
         btn_back.setActionCommand("Назад");
-        btn_back.setLabel("Назад");
         btn_back.setPreferredSize(new java.awt.Dimension(81, 23));
         btn_back.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
@@ -458,7 +436,10 @@ public class Design extends javax.swing.JFrame {
     private void btn_endActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btn_endActionPerformed
         saveData();
         label_result.setVisible(true);
-        label_result.setText("Ви відповіли вірно на " + countRightAnswers + " запитань із " + (MedicineTests.firstSection.size() + MedicineTests.secondSection.size()) + ".");
+        label_result.setText("Ви відповіли вірно на " + countRightAnswers
+                + " запитань із " + (MedicineTests.firstSection.size()
+                + MedicineTests.secondSection.size() + MedicineTests.thirdSection.size()) + ".");
+
         timer.stop();
         rbtn1.setVisible(false);
         rbtn2.setVisible(false);
@@ -520,45 +501,25 @@ public class Design extends javax.swing.JFrame {
         jScrollPane2.setSize(width - 4, height - 32);
         jScrollPane2.setLocation(0, 0);
 
-        System.out.println(btnNumber.size());
-
         for (int i = 0; i < btnNumber.size(); i++) {
             if (i < 60) {
-                String question = MedicineTests.firstSection
-                        .get(i)
-                        .getQuestion();
-                viewResult += question + "\n\n";
-
-                for (int j = 0; j < 5; j++) {
-                    String answerWithBrackets = MedicineTests.firstSection
-                            .get(i)
-                            .getAnswers()
-                            .get(j)
-                            .keySet()
-                            .toString();
-
-                    String answer = removeBrackets(answerWithBrackets);
-                    viewResult += answer + '\n';
+                if(i == 0) {
+                    viewResult += "Перша секція запитань.\n\n";
                 }
-                viewResult += '\n';
-            } else if (i >= 60) {
-                String question = MedicineTests.secondSection
-                        .get(i - MedicineTests.secondSection.size())
-                        .getQuestion();
-                viewResult += question + "\n\n";
-
-                for (int j = 0; j < 5; j++) {
-                    String answerWithBrackets = MedicineTests.secondSection
-                            .get(i - MedicineTests.secondSection.size())
-                            .getAnswers()
-                            .get(j)
-                            .keySet()
-                            .toString();
-
-                    String answer = removeBrackets(answerWithBrackets);
-                    viewResult += answer + "\n";
+                
+                viewResult += outResult(MedicineTests.firstSection, i);
+            } else if (i >= 60 && i < 120) {
+                if(i == 60) {
+                    viewResult += "Друга секція запитань.\n\n";
                 }
-                viewResult += '\n';
+                
+                viewResult += outResult(MedicineTests.secondSection, i - MedicineTests.secondSection.size());
+            } else if (i >= 120) {
+                if(i == 120) {
+                    viewResult += "Третя секція запитань.\n\n";
+                }
+                
+                viewResult += outResult(MedicineTests.thirdSection, i - (MedicineTests.secondSection.size() + MedicineTests.thirdSection.size()));
             }
         }
 
@@ -639,6 +600,47 @@ public class Design extends javax.swing.JFrame {
         }
     }//GEN-LAST:event_rbtn1ActionPerformed
 
+    private String outResult(ArrayList<General> list, int i) {
+        String viewResult = "";
+
+        String question = list
+                .get(i)
+                .getQuestion();
+
+        viewResult += question + "\n\n";
+
+        for (int j = 0; j < 5; j++) {
+            String answerWithBrackets = list
+                    .get(i)
+                    .getAnswers()
+                    .get(j)
+                    .keySet()
+                    .toString();
+
+            String answer = removeBrackets(answerWithBrackets);
+            viewResult += answer + '\n';
+        }
+        viewResult += '\n';
+
+        return viewResult;
+    }
+
+    private void setTextToComponents(ArrayList<General> list, List<JRadioButton> radioButtons, int y) {
+        label_question.setText("<html><p style=\"width:530px\">" + list.get(y).getQuestion() + "</p></html>");
+
+        for (int i = 0; i < 5; i++) {
+            String answerWithBrackets = list
+                    .get(y)
+                    .getAnswers()
+                    .get(i)
+                    .keySet()
+                    .toString();
+
+            String answer = removeBrackets(answerWithBrackets);
+            radioButtons.get(i).setText(answer);
+        }
+    }
+
     private void setPreviousRadioButton() {
         if (btnNumber.get(x) == 1) {
             rbtn1.setSelected(true);
@@ -715,7 +717,7 @@ public class Design extends javax.swing.JFrame {
     private javax.swing.JRadioButton rbtn5;
     // End of variables declaration//GEN-END:variables
 
-    class TimerTick implements ActionListener {
+    private class TimerTick implements ActionListener {
 
         int countdown = 180 * 60;
 
