@@ -5,20 +5,14 @@ import java.util.Map;
 
 public class General {
 
-    private int questionNumber;
     private String question;
     private List<Map<String, Boolean>> answers;
 
     public General() {}
 
-    public General(int questionNumber, String question, List<Map<String, Boolean>> answers) {
-        this.questionNumber = questionNumber;
+    public General(String question, List<Map<String, Boolean>> answers) {
         this.question = question;
         this.answers = answers;
-    }
-
-    public void setQuestionNumber(int questionNumber) {
-        this.questionNumber = questionNumber;
     }
 
     public void setQuestion(String question) {
@@ -27,10 +21,6 @@ public class General {
 
     public void setAnswers(List<Map<String, Boolean>> answers) {
         this.answers = answers;
-    }
-
-    public int getQuestionNumber() {
-        return questionNumber;
     }
 
     public String getQuestion() {
@@ -43,6 +33,6 @@ public class General {
 
     @Override
     public String toString() {
-        return "General{" + "questionNumber=" + questionNumber + ", question=" + question + ", answers=" + answers + '}';
+        return "General{" + "question=" + question + ", answers=" + answers + '}';
     }
 }

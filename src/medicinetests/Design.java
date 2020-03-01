@@ -7,13 +7,13 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Collection;
 import java.util.List;
 import java.util.Map;
 import javax.swing.JOptionPane;
 import javax.swing.JRadioButton;
 import javax.swing.Timer;
 import medicinetests.model.General;
+import medicinetests.utils.Constants;
 
 public class Design extends javax.swing.JFrame {
 
@@ -56,15 +56,16 @@ public class Design extends javax.swing.JFrame {
 
             List<Map<String, Boolean>> answer = data.get(i).getAnswers();
             size++;
-            for (int j = 0; j < answer.size(); j++) {
-                Map<String, Boolean> map = answer.get(j);
-
-                Collection<Boolean> answerState = map.values();
-
-                Boolean firstState = answerState.stream().findFirst().get();
-
+            
+            answer.stream()
+                    .map((map) -> map
+                            .values())
+                    .map((answerState) -> answerState
+                            .stream().findFirst()
+                            .get())
+                    .forEachOrdered((firstState) -> {
                 answersState.add(firstState);
-            }
+            });
         }
 
         for (int i = 0; i < size; i++) {
@@ -120,32 +121,18 @@ public class Design extends javax.swing.JFrame {
         }
 
         if (!btnNumber.isEmpty() && btnNumber.size() != x) {
-            if (btnNumber.get(x) == 1) {
-                rbtn1.setSelected(true);
-            }
-            if (btnNumber.get(x) == 2) {
-                rbtn2.setSelected(true);
-            }
-            if (btnNumber.get(x) == 3) {
-                rbtn3.setSelected(true);
-            }
-            if (btnNumber.get(x) == 4) {
-                rbtn4.setSelected(true);
-            }
-            if (btnNumber.get(x) == 5) {
-                rbtn5.setSelected(true);
-            }
+            setPreviousRadioButton();
         }
 
-        label_counter.setText((x + 1) + " з " + (MedicineTests.firstSection.size() + MedicineTests.secondSection.size() + MedicineTests.thirdSection.size()));
+        label_counter.setText((x + 1) + " з " + Constants.COUNT_OF_QUESTIONS);
 
         List<JRadioButton> radioButtons = Arrays.asList(rbtn1, rbtn2, rbtn3, rbtn4, rbtn5);
 
-        if (x < 60) {
+        if (x < Constants.COUNT_OF_QUESTIONS_FROM_ONE_FILE) {
             setTextToComponents(MedicineTests.firstSection, radioButtons, x);
-        } else if (x >= 60 && x < 120) {
+        } else if (x >= Constants.COUNT_OF_QUESTIONS_FROM_ONE_FILE && x < Constants.COUNT_OF_QUESTIONS_FROM_ONE_FILE * 2) {
             setTextToComponents(MedicineTests.secondSection, radioButtons, x - MedicineTests.secondSection.size());
-        } else if (x >= 120) {
+        } else if (x >= Constants.COUNT_OF_QUESTIONS_FROM_ONE_FILE * 2) {
             setTextToComponents(MedicineTests.thirdSection, radioButtons, x - (MedicineTests.secondSection.size() + MedicineTests.thirdSection.size()));
         }
     }
@@ -437,8 +424,7 @@ public class Design extends javax.swing.JFrame {
         saveData();
         label_result.setVisible(true);
         label_result.setText("Ви відповіли вірно на " + countRightAnswers
-                + " запитань із " + (MedicineTests.firstSection.size()
-                + MedicineTests.secondSection.size() + MedicineTests.thirdSection.size()) + ".");
+                + " запитань із " + Constants.COUNT_OF_QUESTIONS + ".");
 
         timer.stop();
         rbtn1.setVisible(false);
@@ -483,7 +469,7 @@ public class Design extends javax.swing.JFrame {
 
         jScrollPane2.setVisible(true);
 
-        String viewResult = "";
+        StringBuilder viewResult = new StringBuilder();
 
         Dimension screenSize = Toolkit.getDefaultToolkit().getScreenSize();
         int width = (int) screenSize.getWidth();
@@ -502,28 +488,28 @@ public class Design extends javax.swing.JFrame {
         jScrollPane2.setLocation(0, 0);
 
         for (int i = 0; i < btnNumber.size(); i++) {
-            if (i < 60) {
+            if (i < Constants.COUNT_OF_QUESTIONS_FROM_ONE_FILE) {
                 if(i == 0) {
-                    viewResult += "Перша секція запитань.\n\n";
+                    viewResult.append("Перша секція запитань.\n\n");
                 }
                 
-                viewResult += outResult(MedicineTests.firstSection, i);
-            } else if (i >= 60 && i < 120) {
-                if(i == 60) {
-                    viewResult += "Друга секція запитань.\n\n";
+                viewResult.append(outResult(MedicineTests.firstSection, i));
+            } else if (i >= Constants.COUNT_OF_QUESTIONS_FROM_ONE_FILE && i < Constants.COUNT_OF_QUESTIONS_FROM_ONE_FILE * 2) {
+                if(i == Constants.COUNT_OF_QUESTIONS_FROM_ONE_FILE) {
+                    viewResult.append("Друга секція запитань.\n\n");
                 }
                 
-                viewResult += outResult(MedicineTests.secondSection, i - MedicineTests.secondSection.size());
-            } else if (i >= 120) {
-                if(i == 120) {
-                    viewResult += "Третя секція запитань.\n\n";
+                viewResult.append(outResult(MedicineTests.secondSection, i - MedicineTests.secondSection.size()));
+            } else if (i >= Constants.COUNT_OF_QUESTIONS_FROM_ONE_FILE * 2) {
+                if(i == Constants.COUNT_OF_QUESTIONS_FROM_ONE_FILE * 2) {
+                    viewResult.append("Третя секція запитань.\n\n");
                 }
                 
-                viewResult += outResult(MedicineTests.thirdSection, i - (MedicineTests.secondSection.size() + MedicineTests.thirdSection.size()));
+                viewResult.append(outResult(MedicineTests.thirdSection, i - (MedicineTests.secondSection.size() + MedicineTests.thirdSection.size())));
             }
         }
 
-        jTextPane1.setText(viewResult);
+        jTextPane1.setText(viewResult.toString());
     }//GEN-LAST:event_btn_checkActionPerformed
 
     private void rbtn5ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_rbtn5ActionPerformed
@@ -601,13 +587,13 @@ public class Design extends javax.swing.JFrame {
     }//GEN-LAST:event_rbtn1ActionPerformed
 
     private String outResult(ArrayList<General> list, int i) {
-        String viewResult = "";
+        StringBuilder viewResult = new StringBuilder();
 
         String question = list
                 .get(i)
                 .getQuestion();
 
-        viewResult += question + "\n\n";
+        viewResult.append(question).append("\n\n");
 
         for (int j = 0; j < 5; j++) {
             String answerWithBrackets = list
@@ -618,11 +604,11 @@ public class Design extends javax.swing.JFrame {
                     .toString();
 
             String answer = removeBrackets(answerWithBrackets);
-            viewResult += answer + '\n';
+            viewResult.append(answer).append("\n");
         }
-        viewResult += '\n';
+        viewResult.append('\n');
 
-        return viewResult;
+        return viewResult.toString();
     }
 
     private void setTextToComponents(ArrayList<General> list, List<JRadioButton> radioButtons, int y) {

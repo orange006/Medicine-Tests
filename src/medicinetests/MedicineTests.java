@@ -61,8 +61,8 @@ public class MedicineTests {
                 }
                 countOfLines++;
             }
-        } catch (Exception ex) {
-            ex.printStackTrace();
+        } catch (IOException | IllegalAccessException | IllegalArgumentException | NoSuchFieldException | SecurityException ex) {
+            System.out.println(ex.getMessage());
         }
 
         return countOfLines;
@@ -71,15 +71,15 @@ public class MedicineTests {
     private ArrayList<Integer> randomQuestionsNumbers(int lines) {
         int countOfQuestions = (lines - 2) / 6;
 
-        if (countOfQuestions < 60) {
-            JOptionPane.showMessageDialog(null, "Кількість запитань у файлі повинна бути більшою за 60.");
+        if (countOfQuestions < Constants.COUNT_OF_QUESTIONS_FROM_ONE_FILE) {
+            JOptionPane.showMessageDialog(null, "Кількість запитань у файлі повинна бути більшою за " + Constants.COUNT_OF_QUESTIONS_FROM_ONE_FILE + ".");
             System.exit(1);
         }
 
-        int countQuestionsForRandom = countOfQuestions - 60;
+        int countQuestionsForRandom = countOfQuestions - Constants.COUNT_OF_QUESTIONS_FROM_ONE_FILE;
 
-        int randomNumberForBegin = MedicineTests.getRandomNumberInRange(0, countQuestionsForRandom);
-        int randomNumberForEnd = randomNumberForBegin + 60;
+        int randomNumberForBegin = MedicineTests.getRandomNumberInRange(countQuestionsForRandom);
+        int randomNumberForEnd = randomNumberForBegin + Constants.COUNT_OF_QUESTIONS_FROM_ONE_FILE;
 
         ArrayList<Integer> questionNumbersRanges = new ArrayList<>();
 
@@ -117,7 +117,6 @@ public class MedicineTests {
             int questionNumber = random60Numbers.get(i);
             int questionRow = questionNumber * 6;
 
-            object.setQuestionNumber(i);
             object.setQuestion(dataAll.get(questionRow));
 
             List<Map<String, Boolean>> answers = new ArrayList<>();
@@ -144,12 +143,12 @@ public class MedicineTests {
         return generalList;
     }
 
-    private static int getRandomNumberInRange(int min, int max) {
-        if (min >= max) {
+    private static int getRandomNumberInRange(int max) {
+        if (0 >= max) {
             throw new IllegalArgumentException("max must be greater than min");
         }
         Random r = new Random();
 
-        return r.nextInt((max - min) + 1) + min;
+        return r.nextInt((max) + 1);
     }
 }
