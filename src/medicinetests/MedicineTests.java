@@ -14,12 +14,19 @@ import java.util.List;
 import java.util.Map;
 import java.util.Random;
 import javax.swing.JOptionPane;
+import medicinetests.model.General;
+import medicinetests.utils.Constants;
 
 public class MedicineTests {
     
-    int countLines = 0;
-    String path1;
+    private static int countLinesUkr = 0;
+    private static int countLinesEng = 0;
+    
+    private static String pathUkr;
+    private static String pathEng;
+    
     public static ArrayList<General> firstSection;
+    public static ArrayList<General> secondSection;
     
     public static void main(String[] args) throws IOException {
         
@@ -27,43 +34,61 @@ public class MedicineTests {
         
         tests.loadFiles();
         
-        ArrayList<Integer> listRandomRanges = tests.randomQuestionsNumbers();
-        ArrayList<String> listData = tests.readFile();
+        ArrayList<Integer> listRandomRangesUkr = tests.randomQuestionsNumbers(countLinesUkr);
+        ArrayList<Integer> listRandomRangesEng = tests.randomQuestionsNumbers(countLinesEng);
         
-        firstSection = tests.listReadyQuestions(listData, listRandomRanges);
+        ArrayList<String> listDataUkr = tests.readFile(pathUkr);
+        ArrayList<String> listDataEng = tests.readFile(pathEng);
         
-        Design design = new Design();
-        design.setVisible(true);
+        firstSection = tests.listReadyQuestions(listDataUkr, listRandomRangesUkr);
+        secondSection = tests.listReadyQuestions(listDataEng, listRandomRangesEng);
+
+        new Design().setVisible(true);
     }
     
-    public void loadFiles() {
+    private void loadFiles() {
         try {
             System.setProperty("file.encoding", "UTF-8");
             Field charset = Charset.class.getDeclaredField("defaultCharset");
             charset.setAccessible(true);
             charset.set(null, null);
             
-            File nameFile = new File("questionsUKR.txt");
-            path1 = nameFile.getAbsolutePath();
+            File nameFile = new File(Constants.NAME_UKR);
+            pathUkr = nameFile.getAbsolutePath();
             
-            File file = new File(path1);
+            File file = new File(pathUkr);
             FileReader fr = new FileReader(file);
             try (BufferedReader reader = new BufferedReader(fr)) {
                 String lines = "";
                 
                 while (lines != null) {
                     lines = reader.readLine();
-                    countLines++;
+                    countLinesUkr++;
                 }
-                countLines++;
+                countLinesUkr++;
+            }
+            
+            File nameFile2 = new File(Constants.NAME_ENG);
+            pathEng = nameFile2.getAbsolutePath();
+            
+            File file2 = new File(pathEng);
+            FileReader fr2 = new FileReader(file2);
+            try (BufferedReader reader = new BufferedReader(fr2)) {
+                String lines = "";
+                
+                while (lines != null) {
+                    lines = reader.readLine();
+                    countLinesEng++;
+                }
+                countLinesEng++;
             }
         } catch (Exception ex) {
             System.out.println("EXCEPTION 1");
         }
     }
     
-    public ArrayList<Integer> randomQuestionsNumbers() {
-        int countOfQuestions = (countLines - 2) / 6;
+    private ArrayList<Integer> randomQuestionsNumbers(int lines) {
+        int countOfQuestions = (lines - 2) / 6;
         
         if (countOfQuestions < 60) {
             JOptionPane.showMessageDialog(null, "Кількість запитань в файлі повинна бути більшою за 60.");
@@ -86,9 +111,9 @@ public class MedicineTests {
         return questionNumbersRanges;
     }
     
-    public ArrayList<String> readFile() throws IOException {
+    private ArrayList<String> readFile(String filePath) throws IOException {
         ArrayList<String> data = new ArrayList<>();
-        File file = new File(path1);
+        File file = new File(filePath);
         FileReader fr = new FileReader(file);
         try (BufferedReader reader = new BufferedReader(fr)) {
             String lines = reader.readLine();
@@ -102,7 +127,7 @@ public class MedicineTests {
         return data;
     }
     
-    public ArrayList<General> listReadyQuestions(ArrayList<String> dataAll, ArrayList<Integer> random60Numbers) {
+    private ArrayList<General> listReadyQuestions(ArrayList<String> dataAll, ArrayList<Integer> random60Numbers) {
         ArrayList<General> generalList = new ArrayList<>();
         
         for (int i = 0; i < random60Numbers.size(); i++) {
@@ -154,60 +179,5 @@ public class MedicineTests {
         Random r = new Random();
         
         return r.nextInt((max - min) + 1) + min;
-    }
-}
-
-class General {
-    
-    int questionNumber;
-    String question;
-    List<Map<String, Boolean>> answers;
-    boolean userAnswer = false;
-    
-    public General() {
-    }
-    
-    public General(int questionNumber, String question, List<Map<String, Boolean>> answers, boolean userAnswer) {
-        this.questionNumber = questionNumber;
-        this.question = question;
-        this.answers = answers;
-        this.userAnswer = userAnswer;
-    }
-    
-    public void setQuestionNumber(int questionNumber) {
-        this.questionNumber = questionNumber;
-    }
-    
-    public void setQuestion(String question) {
-        this.question = question;
-    }
-    
-    public void setAnswers(List<Map<String, Boolean>> answers) {
-        this.answers = answers;
-    }
-    
-    public void setUserAnswer(boolean userAnswer) {
-        this.userAnswer = userAnswer;
-    }
-    
-    public int getQuestionNumber() {
-        return questionNumber;
-    }
-    
-    public String getQuestion() {
-        return question;
-    }
-    
-    public List<Map<String, Boolean>> getAnswers() {
-        return answers;
-    }
-    
-    public boolean isUserAnswer() {
-        return userAnswer;
-    }
-    
-    @Override
-    public String toString() {
-        return "General{" + "questionNumber=" + questionNumber + ", question=" + question + ", answers=" + answers + ", userAnswer=" + userAnswer + '}';
     }
 }

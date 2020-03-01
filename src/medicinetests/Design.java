@@ -6,11 +6,14 @@ import java.awt.Toolkit;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.List;
 import java.util.Map;
 import javax.swing.JOptionPane;
+import javax.swing.JRadioButton;
 import javax.swing.Timer;
+import medicinetests.model.General;
 
 public class Design extends javax.swing.JFrame {
 
@@ -42,7 +45,9 @@ public class Design extends javax.swing.JFrame {
     }
 
     public void saveData() {
-        ArrayList<General> data = MedicineTests.firstSection;
+        ArrayList<General> data = new ArrayList<>();
+        data.addAll(MedicineTests.firstSection);
+        data.addAll(MedicineTests.secondSection);
 
         int size = 0;
 
@@ -99,8 +104,8 @@ public class Design extends javax.swing.JFrame {
         rbtn5.setSelected(false);
 
         btn_answer.setEnabled(false);
-        
-        if(btnNumber.size() == MedicineTests.firstSection.size()) {
+
+        if (btnNumber.size() == (MedicineTests.firstSection.size() + MedicineTests.secondSection.size())) {
             btn_end.doClick();
             return;
         }
@@ -131,32 +136,40 @@ public class Design extends javax.swing.JFrame {
             }
         }
 
-        label_counter.setText((x + 1) + " з " + MedicineTests.firstSection.size());
+        label_counter.setText((x + 1) + " з " + (MedicineTests.firstSection.size() + MedicineTests.secondSection.size()));
 
-        label_question.setText("<html><p style=\"width:530px\">" + MedicineTests.firstSection.get(x).getQuestion() + "</p></html>");
-        String firstAnswerBrace = MedicineTests.firstSection.get(x).getAnswers().get(0).keySet().toString();
-        String firstAnswer = removeBrace(firstAnswerBrace);
-        rbtn1.setText(firstAnswer);
+        List<JRadioButton> radioButtons = Arrays.asList(rbtn1, rbtn2, rbtn3, rbtn4, rbtn5);
 
-        String firstAnswerBrace2 = MedicineTests.firstSection.get(x).getAnswers().get(1).keySet().toString();
-        String firstAnswer2 = removeBrace(firstAnswerBrace2);
-        rbtn2.setText(firstAnswer2);
+        if (x < 60) {
+            label_question.setText("<html><p style=\"width:530px\">" + MedicineTests.firstSection.get(x).getQuestion() + "</p></html>");
 
-        String firstAnswerBrace3 = MedicineTests.firstSection.get(x).getAnswers().get(2).keySet().toString();
-        String firstAnswer3 = removeBrace(firstAnswerBrace3);
-        rbtn3.setText(firstAnswer3);
+            for (int i = 0; i < 5; i++) {
+                String answerWithBrackets = MedicineTests.firstSection
+                        .get(x)
+                        .getAnswers()
+                        .get(i)
+                        .keySet()
+                        .toString();
 
-        String firstAnswerBrace4 = MedicineTests.firstSection.get(x).getAnswers().get(3).keySet().toString();
-        String firstAnswer4 = removeBrace(firstAnswerBrace4);
-        rbtn4.setText(firstAnswer4);
+                String answer = removeBrackets(answerWithBrackets);
+                radioButtons.get(i).setText(answer);
+            }
 
-        String firstAnswerBrace5 = MedicineTests.firstSection.get(x).getAnswers().get(4).keySet().toString();
-        String firstAnswer5 = removeBrace(firstAnswerBrace5);
-        rbtn5.setText(firstAnswer5);
-    }
+        } else if (x >= 60) {
+            label_question.setText("<html><p style=\"width:530px\">" + MedicineTests.secondSection.get(x - MedicineTests.secondSection.size()).getQuestion() + "</p></html>");
 
-    private String removeBrace(String answer) {
-        return answer.substring(1, answer.length() - 1);
+            for (int i = 0; i < 5; i++) {
+                String answerWithBrackets = MedicineTests.secondSection
+                        .get(x - MedicineTests.secondSection.size())
+                        .getAnswers()
+                        .get(i)
+                        .keySet()
+                        .toString();
+
+                String answer = removeBrackets(answerWithBrackets);
+                radioButtons.get(i).setText(answer);
+            }
+        }
     }
 
     @SuppressWarnings("unchecked")
@@ -211,7 +224,7 @@ public class Design extends javax.swing.JFrame {
             }
         });
 
-        label_result.setFont(new java.awt.Font("Roboto Light", 0, 16)); // NOI18N
+        label_result.setFont(new java.awt.Font("Roboto Light", 0, 18)); // NOI18N
         label_result.setText("Result");
 
         btn_exit.setBackground(new java.awt.Color(0, 0, 0));
@@ -445,7 +458,7 @@ public class Design extends javax.swing.JFrame {
     private void btn_endActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btn_endActionPerformed
         saveData();
         label_result.setVisible(true);
-        label_result.setText("Ви відповіли правильно на  " + countRightAnswers + " питань з " + MedicineTests.firstSection.size() + ".");
+        label_result.setText("Ви відповіли вірно на " + countRightAnswers + " запитань із " + (MedicineTests.firstSection.size() + MedicineTests.secondSection.size()) + ".");
         timer.stop();
         rbtn1.setVisible(false);
         rbtn2.setVisible(false);
@@ -476,7 +489,7 @@ public class Design extends javax.swing.JFrame {
 
     private void btn_checkActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btn_checkActionPerformed
         if (btnNumber.isEmpty()) {
-            JOptionPane.showMessageDialog(null, "Ви не дали відповіді хоча б на одне питання!");
+            JOptionPane.showMessageDialog(null, "Ви не дали відповіді хоча б на одне запитання!");
             return;
         }
 
@@ -488,7 +501,7 @@ public class Design extends javax.swing.JFrame {
         btn_exit.setVisible(false);
 
         jScrollPane2.setVisible(true);
-        
+
         String viewResult = "";
 
         Dimension screenSize = Toolkit.getDefaultToolkit().getScreenSize();
@@ -498,36 +511,57 @@ public class Design extends javax.swing.JFrame {
             width = 1366;
             height = 768;
         }
-        
+
         this.setSize(width, height);
         this.setLocationRelativeTo(null);
         setLayout(null);
-        
+
         jScrollPane2.setVisible(true);
         jScrollPane2.setSize(width - 4, height - 32);
         jScrollPane2.setLocation(0, 0);
 
+        System.out.println(btnNumber.size());
+
         for (int i = 0; i < btnNumber.size(); i++) {
-            String question = MedicineTests.firstSection.get(i).getQuestion();
+            if (i < 60) {
+                String question = MedicineTests.firstSection
+                        .get(i)
+                        .getQuestion();
+                viewResult += question + "\n\n";
 
-            String firstAnswerBrace = MedicineTests.firstSection.get(i).getAnswers().get(0).keySet().toString();
-            String firstAnswer = removeBrace(firstAnswerBrace);
+                for (int j = 0; j < 5; j++) {
+                    String answerWithBrackets = MedicineTests.firstSection
+                            .get(i)
+                            .getAnswers()
+                            .get(j)
+                            .keySet()
+                            .toString();
 
-            String firstAnswerBrace2 = MedicineTests.firstSection.get(i).getAnswers().get(1).keySet().toString();
-            String firstAnswer2 = removeBrace(firstAnswerBrace2);
+                    String answer = removeBrackets(answerWithBrackets);
+                    viewResult += answer + '\n';
+                }
+                viewResult += '\n';
+            } else if (i >= 60) {
+                String question = MedicineTests.secondSection
+                        .get(i - MedicineTests.secondSection.size())
+                        .getQuestion();
+                viewResult += question + "\n\n";
 
-            String firstAnswerBrace3 = MedicineTests.firstSection.get(i).getAnswers().get(2).keySet().toString();
-            String firstAnswer3 = removeBrace(firstAnswerBrace3);
+                for (int j = 0; j < 5; j++) {
+                    String answerWithBrackets = MedicineTests.secondSection
+                            .get(i - MedicineTests.secondSection.size())
+                            .getAnswers()
+                            .get(j)
+                            .keySet()
+                            .toString();
 
-            String firstAnswerBrace4 = MedicineTests.firstSection.get(i).getAnswers().get(3).keySet().toString();
-            String firstAnswer4 = removeBrace(firstAnswerBrace4);
-
-            String firstAnswerBrace5 = MedicineTests.firstSection.get(i).getAnswers().get(4).keySet().toString();
-            String firstAnswer5 = removeBrace(firstAnswerBrace5);
-
-            viewResult += question + "\n\n" + firstAnswer + "\n" + firstAnswer2 + "\n" + firstAnswer3 + "\n" + firstAnswer4 + "\n" + firstAnswer5 + "\n\n";
-
+                    String answer = removeBrackets(answerWithBrackets);
+                    viewResult += answer + "\n";
+                }
+                viewResult += '\n';
+            }
         }
+
         jTextPane1.setText(viewResult);
     }//GEN-LAST:event_btn_checkActionPerformed
 
@@ -621,6 +655,10 @@ public class Design extends javax.swing.JFrame {
         if (btnNumber.get(x) == 5) {
             rbtn5.setSelected(true);
         }
+    }
+
+    private String removeBrackets(String answer) {
+        return answer.substring(1, answer.length() - 1);
     }
 
     /**
