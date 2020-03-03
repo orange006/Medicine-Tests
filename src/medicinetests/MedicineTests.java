@@ -149,6 +149,6 @@ public class MedicineTests {
         }
         Random r = new Random();
 
-        return r.nextInt((max) + 1);
+        return r.nextInt(max + 1);
     }
 }

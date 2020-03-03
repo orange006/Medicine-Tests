@@ -12,6 +12,10 @@ import java.util.Map;
 import javax.swing.JOptionPane;
 import javax.swing.JRadioButton;
 import javax.swing.Timer;
+import javax.swing.text.BadLocationException;
+import javax.swing.text.MutableAttributeSet;
+import javax.swing.text.StyleConstants;
+import javax.swing.text.StyledDocument;
 import medicinetests.model.General;
 import medicinetests.utils.Constants;
 
@@ -19,14 +23,17 @@ public class Design extends javax.swing.JFrame {
 
     private final Timer timer;
     private int x = 0;
+    
+    private int count = 0;
 
     private int countRightAnswers = 0;
 
-    private ArrayList<Integer> btnNumber = new ArrayList<>();
+    private final ArrayList<Integer> btnNumber = new ArrayList<>();
 
-    private ArrayList<Boolean> answersState = new ArrayList<>();
+    private final ArrayList<Boolean> answersState = new ArrayList<>();
 
-    private ArrayList<String> answererList = new ArrayList<>();
+    private final ArrayList<Integer> trueAnswersSize = new ArrayList<>();
+    private final ArrayList<Integer> falseAnswersSize = new ArrayList<>();
 
     public Design() {
         initComponents();
@@ -56,16 +63,16 @@ public class Design extends javax.swing.JFrame {
 
             List<Map<String, Boolean>> answer = data.get(i).getAnswers();
             size++;
-            
+
             answer.stream()
                     .map((map) -> map
-                            .values())
+                    .values())
                     .map((answerState) -> answerState
-                            .stream().findFirst()
-                            .get())
+                    .stream().findFirst()
+                    .get())
                     .forEachOrdered((firstState) -> {
-                answersState.add(firstState);
-            });
+                        answersState.add(firstState);
+                    });
         }
 
         for (int i = 0; i < size; i++) {
@@ -73,29 +80,6 @@ public class Design extends javax.swing.JFrame {
                 countRightAnswers++;
             }
         }
-
-//        for (int i = 0; i < size; i++) {
-//            List<Map<String, Boolean>> answer = data.get(i).getAnswers();
-//            for (int j = 0; j < answer.size(); j++) {
-//                
-//                Map<String, Boolean> map = answer.get(j);
-//
-//                Collection<Boolean> answerState = map.values();
-//                
-//                String answerText = map.keySet().stream().findFirst().get();
-//
-//                answererList.add(answerText);
-//            }
-//        }
-//        
-//        for (int i = 0; i < size; i++) {
-//            if (answersState.get(i * 5 + btnNumber.get(i) - 1) == true) {
-//                
-//                String beforeTrue = answererList.get(i * 5 + btnNumber.get(i) - 2);
-//                
-//                answererList.set(i * 5 + btnNumber.get(i) - 2, beforeTrue + "$");
-//            }
-//        }
     }
 
     private void makeProgram() {
@@ -131,9 +115,9 @@ public class Design extends javax.swing.JFrame {
         if (x < Constants.COUNT_OF_QUESTIONS_FROM_ONE_FILE) {
             setTextToComponents(MedicineTests.firstSection, radioButtons, x);
         } else if (x >= Constants.COUNT_OF_QUESTIONS_FROM_ONE_FILE && x < Constants.COUNT_OF_QUESTIONS_FROM_ONE_FILE * 2) {
-            setTextToComponents(MedicineTests.secondSection, radioButtons, x - MedicineTests.secondSection.size());
+            setTextToComponents(MedicineTests.secondSection, radioButtons, x - Constants.COUNT_OF_QUESTIONS_FROM_ONE_FILE);
         } else if (x >= Constants.COUNT_OF_QUESTIONS_FROM_ONE_FILE * 2) {
-            setTextToComponents(MedicineTests.thirdSection, radioButtons, x - (MedicineTests.secondSection.size() + MedicineTests.thirdSection.size()));
+            setTextToComponents(MedicineTests.thirdSection, radioButtons, x - Constants.COUNT_OF_QUESTIONS_FROM_ONE_FILE * 2);
         }
     }
 
@@ -487,29 +471,74 @@ public class Design extends javax.swing.JFrame {
         jScrollPane2.setSize(width - 4, height - 32);
         jScrollPane2.setLocation(0, 0);
 
+        List<String> sections = Arrays.asList("^Перша секція запитань.\n\n", "^Друга секція запитань.\n\n", "^Третя секція запитань.\n\n");
+
         for (int i = 0; i < btnNumber.size(); i++) {
             if (i < Constants.COUNT_OF_QUESTIONS_FROM_ONE_FILE) {
-                if(i == 0) {
-                    viewResult.append("Перша секція запитань.\n\n");
+                if (i == 0) {
+                    viewResult.append(sections.get(0));
                 }
-                
+
                 viewResult.append(outResult(MedicineTests.firstSection, i));
             } else if (i >= Constants.COUNT_OF_QUESTIONS_FROM_ONE_FILE && i < Constants.COUNT_OF_QUESTIONS_FROM_ONE_FILE * 2) {
-                if(i == Constants.COUNT_OF_QUESTIONS_FROM_ONE_FILE) {
-                    viewResult.append("Друга секція запитань.\n\n");
+                if (i == Constants.COUNT_OF_QUESTIONS_FROM_ONE_FILE) {
+                    viewResult.append(sections.get(1));
                 }
-                
-                viewResult.append(outResult(MedicineTests.secondSection, i - MedicineTests.secondSection.size()));
+
+                viewResult.append(outResult(MedicineTests.secondSection, i - Constants.COUNT_OF_QUESTIONS_FROM_ONE_FILE));
             } else if (i >= Constants.COUNT_OF_QUESTIONS_FROM_ONE_FILE * 2) {
-                if(i == Constants.COUNT_OF_QUESTIONS_FROM_ONE_FILE * 2) {
-                    viewResult.append("Третя секція запитань.\n\n");
+                if (i == Constants.COUNT_OF_QUESTIONS_FROM_ONE_FILE * 2) {
+                    viewResult.append(sections.get(2));
                 }
-                
-                viewResult.append(outResult(MedicineTests.thirdSection, i - (MedicineTests.secondSection.size() + MedicineTests.thirdSection.size())));
+
+                viewResult.append(outResult(MedicineTests.thirdSection, i - Constants.COUNT_OF_QUESTIONS_FROM_ONE_FILE * 2));
             }
         }
 
         jTextPane1.setText(viewResult.toString());
+
+        MutableAttributeSet attrs = jTextPane1.getInputAttributes();
+        StyledDocument doc = jTextPane1.getStyledDocument();
+
+        int countTrue = 0;
+        int countFalse = 0;
+        int countSections = 0;
+
+        try {
+            for (int k = 0; k < jTextPane1.getText().length(); k++) {
+                String symbol = jTextPane1.getText(k, 1);
+                StyleConstants.setForeground(attrs, Color.black);
+
+                if (symbol.equals("$")) {
+                    jTextPane1.getDocument().remove(k, 1);
+
+                    StyleConstants.setForeground(attrs, Color.green);
+
+                    doc.setCharacterAttributes(k, trueAnswersSize.get(countTrue++) - 1, attrs, false);
+                }
+
+                if (symbol.equals("`")) {
+                    jTextPane1.getDocument().remove(k, 1);
+
+                    StyleConstants.setForeground(attrs, Color.red);
+
+                    doc.setCharacterAttributes(k, falseAnswersSize.get(countFalse++) - 1, attrs, false);
+                }
+
+                if (symbol.equals("^")) {
+                    jTextPane1.getDocument().remove(k, 1);
+
+                    StyleConstants.setForeground(attrs, Color.BLUE);
+                    StyleConstants.setBold(attrs, true);
+
+                    doc.setCharacterAttributes(k, sections.get(countSections++).length() - 1, attrs, false);
+
+                    StyleConstants.setBold(attrs, false);
+                }
+            }
+        } catch (BadLocationException ex) {
+            JOptionPane.showMessageDialog(null, "BadLocation Exception");
+        }
     }//GEN-LAST:event_btn_checkActionPerformed
 
     private void rbtn5ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_rbtn5ActionPerformed
@@ -603,11 +632,34 @@ public class Design extends javax.swing.JFrame {
                     .keySet()
                     .toString();
 
+            Boolean answerState = list
+                    .get(i)
+                    .getAnswers()
+                    .get(j)
+                    .values()
+                    .stream()
+                    .findFirst()
+                    .get();
+
             String answer = removeBrackets(answerWithBrackets);
-            viewResult.append(answer).append("\n");
+            
+            if (answerState == true) {
+                viewResult.append("$").append(answer).append("\n");
+                
+                trueAnswersSize.add(answerWithBrackets.length());
+            } else if (answerState == false && j + 1 == btnNumber.get(count)) {
+                viewResult.append("`").append(answer).append("\n");
+                
+                falseAnswersSize.add(answerWithBrackets.length());
+                
+            } else {
+                viewResult.append(answer).append("\n");
+            }
         }
         viewResult.append('\n');
-
+        
+        count++;
+        
         return viewResult.toString();
     }
 
@@ -665,22 +717,16 @@ public class Design extends javax.swing.JFrame {
                     break;
                 }
             }
-        } catch (ClassNotFoundException ex) {
-            java.util.logging.Logger.getLogger(Design.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
-        } catch (InstantiationException ex) {
-            java.util.logging.Logger.getLogger(Design.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
-        } catch (IllegalAccessException ex) {
-            java.util.logging.Logger.getLogger(Design.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
-        } catch (javax.swing.UnsupportedLookAndFeelException ex) {
+        } catch (ClassNotFoundException | InstantiationException | IllegalAccessException | javax.swing.UnsupportedLookAndFeelException ex) {
             java.util.logging.Logger.getLogger(Design.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
         }
         //</editor-fold>
 
+        //</editor-fold>
+
         /* Create and display the form */
-        java.awt.EventQueue.invokeLater(new Runnable() {
-            public void run() {
-                new Design().setVisible(true);
-            }
+        java.awt.EventQueue.invokeLater(() -> {
+            new Design().setVisible(true);
         });
     }
 

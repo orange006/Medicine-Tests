@@ -10,11 +10,6 @@ public class General {
 
     public General() {}
 
-    public General(String question, List<Map<String, Boolean>> answers) {
-        this.question = question;
-        this.answers = answers;
-    }
-
     public void setQuestion(String question) {
         this.question = question;
     }
