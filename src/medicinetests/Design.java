@@ -2,6 +2,7 @@ package medicinetests;
 
 import java.awt.Color;
 import java.awt.Dimension;
+import java.awt.Insets;
 import java.awt.Toolkit;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
@@ -23,10 +24,12 @@ public class Design extends javax.swing.JFrame {
 
     private final Timer timer;
     private int x = 0;
-    
+
     private int count = 0;
 
-    private int countRightAnswers = 0;
+    private int countRightAnswersFirstSection = 0;
+    private int countRightAnswersSecondSection = 0;
+    private int countRightAnswersThirdSection = 0;
 
     private final ArrayList<Integer> btnNumber = new ArrayList<>();
 
@@ -38,6 +41,14 @@ public class Design extends javax.swing.JFrame {
     public Design() {
         initComponents();
 
+        btn_red.setMargin(new Insets(0, 0, 0, 0));
+        btn_red.setBackground(Color.WHITE);
+        btn_red.setBorder(null);
+
+        btn_green.setMargin(new Insets(0, 0, 0, 0));
+        btn_green.setBackground(Color.WHITE);
+        btn_green.setBorder(null);
+
         getContentPane().setBackground(Color.WHITE);
 
         timer = new Timer(1000, new TimerTick());
@@ -45,8 +56,12 @@ public class Design extends javax.swing.JFrame {
 
         jScrollPane2.setVisible(false);
         btn_check.setVisible(false);
-        label_result.setVisible(false);
+        label_info_end.setVisible(false);
         btn_exit.setVisible(false);
+        label_resultAll.setVisible(false);
+        label_result1.setVisible(false);
+        label_result2.setVisible(false);
+        label_result3.setVisible(false);
 
         makeProgram();
     }
@@ -76,8 +91,18 @@ public class Design extends javax.swing.JFrame {
         }
 
         for (int i = 0; i < size; i++) {
-            if (answersState.get(i * 5 + btnNumber.get(i) - 1) == true) {
-                countRightAnswers++;
+            if (i < Constants.COUNT_OF_QUESTIONS_FROM_ONE_FILE) {
+                if (answersState.get(i * 5 + btnNumber.get(i) - 1) == true) {
+                    countRightAnswersFirstSection++;
+                }
+            } else if (i >= Constants.COUNT_OF_QUESTIONS_FROM_ONE_FILE && i < Constants.COUNT_OF_QUESTIONS_FROM_ONE_FILE * 2) {
+                if (answersState.get(i * 5 + btnNumber.get(i) - 1) == true) {
+                    countRightAnswersSecondSection++;
+                }
+            } else if (i > Constants.COUNT_OF_QUESTIONS_FROM_ONE_FILE * 2) {
+                if (answersState.get(i * 5 + btnNumber.get(i) - 1) == true) {
+                    countRightAnswersThirdSection++;
+                }
             }
         }
     }
@@ -90,22 +115,28 @@ public class Design extends javax.swing.JFrame {
         rbtn5.setSelected(false);
 
         btn_answer.setEnabled(false);
+        btn_green.setEnabled(false);
 
-        if (btnNumber.size() == (MedicineTests.firstSection.size() + MedicineTests.secondSection.size() + MedicineTests.thirdSection.size())) {
+        if (btnNumber.size() == Constants.COUNT_OF_QUESTIONS) {
             btn_end.doClick();
             return;
         }
 
         if (x == 0) {
-            btn_back.setEnabled(false);
+            btn_red.setEnabled(false);
         }
 
         if (x > 0) {
-            btn_back.setEnabled(true);
+            btn_red.setEnabled(true);
         }
 
         if (!btnNumber.isEmpty() && btnNumber.size() != x) {
             setPreviousRadioButton();
+        }
+
+        if (rbtn1.isSelected() || rbtn2.isSelected() || rbtn3.isSelected() || rbtn4.isSelected() || rbtn5.isSelected()) {
+            btn_answer.setEnabled(true);
+            btn_green.setEnabled(true);
         }
 
         label_counter.setText((x + 1) + " з " + Constants.COUNT_OF_QUESTIONS);
@@ -128,7 +159,7 @@ public class Design extends javax.swing.JFrame {
         rbtn2 = new javax.swing.JRadioButton();
         rbtn3 = new javax.swing.JRadioButton();
         rbtn4 = new javax.swing.JRadioButton();
-        label_result = new javax.swing.JLabel();
+        label_info_end = new javax.swing.JLabel();
         btn_exit = new javax.swing.JButton();
         btn_end = new javax.swing.JButton();
         label_question = new javax.swing.JLabel();
@@ -138,9 +169,14 @@ public class Design extends javax.swing.JFrame {
         rbtn5 = new javax.swing.JRadioButton();
         jScrollPane2 = new javax.swing.JScrollPane();
         jTextPane1 = new javax.swing.JTextPane();
-        btn_back = new javax.swing.JButton();
         btn_answer = new javax.swing.JButton();
         rbtn1 = new javax.swing.JRadioButton();
+        label_result1 = new javax.swing.JLabel();
+        label_result2 = new javax.swing.JLabel();
+        label_result3 = new javax.swing.JLabel();
+        label_resultAll = new javax.swing.JLabel();
+        btn_red = new javax.swing.JButton();
+        btn_green = new javax.swing.JButton();
 
         setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
         setBackground(new java.awt.Color(255, 255, 255));
@@ -173,8 +209,8 @@ public class Design extends javax.swing.JFrame {
             }
         });
 
-        label_result.setFont(new java.awt.Font("Roboto Light", 0, 18)); // NOI18N
-        label_result.setText("Result");
+        label_info_end.setFont(new java.awt.Font("Roboto Light", 0, 18)); // NOI18N
+        label_info_end.setText("info_end");
 
         btn_exit.setBackground(new java.awt.Color(0, 0, 0));
         btn_exit.setFont(new java.awt.Font("Roboto Light", 0, 12)); // NOI18N
@@ -232,18 +268,6 @@ public class Design extends javax.swing.JFrame {
         jTextPane1.setFont(new java.awt.Font("Roboto", 0, 16)); // NOI18N
         jScrollPane2.setViewportView(jTextPane1);
 
-        btn_back.setBackground(new java.awt.Color(0, 0, 0));
-        btn_back.setFont(new java.awt.Font("Roboto Light", 0, 12)); // NOI18N
-        btn_back.setForeground(new java.awt.Color(255, 255, 255));
-        btn_back.setText("Повернутися");
-        btn_back.setActionCommand("Назад");
-        btn_back.setPreferredSize(new java.awt.Dimension(81, 23));
-        btn_back.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent evt) {
-                btn_backActionPerformed(evt);
-            }
-        });
-
         btn_answer.setBackground(new java.awt.Color(0, 0, 0));
         btn_answer.setFont(new java.awt.Font("Roboto Light", 0, 12)); // NOI18N
         btn_answer.setForeground(new java.awt.Color(255, 255, 255));
@@ -264,6 +288,40 @@ public class Design extends javax.swing.JFrame {
             }
         });
 
+        label_result1.setFont(new java.awt.Font("Roboto Light", 0, 18)); // NOI18N
+        label_result1.setText("Result1");
+
+        label_result2.setFont(new java.awt.Font("Roboto Light", 0, 18)); // NOI18N
+        label_result2.setText("Result2");
+
+        label_result3.setFont(new java.awt.Font("Roboto Light", 0, 18)); // NOI18N
+        label_result3.setText("Result3");
+
+        label_resultAll.setFont(new java.awt.Font("Roboto Light", 0, 18)); // NOI18N
+        label_resultAll.setText("Result");
+
+        btn_red.setBackground(new java.awt.Color(0, 0, 0));
+        btn_red.setFont(new java.awt.Font("Roboto Light", 0, 12)); // NOI18N
+        btn_red.setForeground(new java.awt.Color(255, 255, 255));
+        btn_red.setIcon(new javax.swing.ImageIcon(getClass().getResource("/medicinetests/resources/red_arrow.png"))); // NOI18N
+        btn_red.setPreferredSize(new java.awt.Dimension(81, 23));
+        btn_red.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                btn_redActionPerformed(evt);
+            }
+        });
+
+        btn_green.setBackground(new java.awt.Color(0, 0, 0));
+        btn_green.setFont(new java.awt.Font("Roboto Light", 0, 12)); // NOI18N
+        btn_green.setForeground(new java.awt.Color(255, 255, 255));
+        btn_green.setIcon(new javax.swing.ImageIcon(getClass().getResource("/medicinetests/resources/green_arrow.png"))); // NOI18N
+        btn_green.setPreferredSize(new java.awt.Dimension(81, 23));
+        btn_green.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                btn_greenActionPerformed(evt);
+            }
+        });
+
         javax.swing.GroupLayout layout = new javax.swing.GroupLayout(getContentPane());
         getContentPane().setLayout(layout);
         layout.setHorizontalGroup(
@@ -280,16 +338,33 @@ public class Design extends javax.swing.JFrame {
                             .addGroup(javax.swing.GroupLayout.Alignment.LEADING, layout.createSequentialGroup()
                                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
                                     .addComponent(label_counter, javax.swing.GroupLayout.Alignment.LEADING)
-                                    .addGroup(javax.swing.GroupLayout.Alignment.LEADING, layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
-                                        .addComponent(label_result)
-                                        .addComponent(label_question)))
+                                    .addComponent(label_question, javax.swing.GroupLayout.Alignment.LEADING))
                                 .addGap(0, 0, Short.MAX_VALUE))
+                            .addGroup(javax.swing.GroupLayout.Alignment.LEADING, layout.createSequentialGroup()
+                                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                                    .addGroup(layout.createSequentialGroup()
+                                        .addComponent(label_info_end)
+                                        .addGap(18, 155, Short.MAX_VALUE)
+                                        .addComponent(label_result2)
+                                        .addGap(26, 26, 26))
+                                    .addGroup(layout.createSequentialGroup()
+                                        .addComponent(btn_answer, javax.swing.GroupLayout.PREFERRED_SIZE, 140, javax.swing.GroupLayout.PREFERRED_SIZE)
+                                        .addGap(18, 18, 18)
+                                        .addComponent(btn_red, javax.swing.GroupLayout.PREFERRED_SIZE, 46, javax.swing.GroupLayout.PREFERRED_SIZE)
+                                        .addGap(18, 18, 18)
+                                        .addComponent(btn_green, javax.swing.GroupLayout.PREFERRED_SIZE, 46, javax.swing.GroupLayout.PREFERRED_SIZE)
+                                        .addGap(0, 0, Short.MAX_VALUE)))
+                                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
+                                    .addGroup(layout.createSequentialGroup()
+                                        .addGap(9, 9, 9)
+                                        .addComponent(label_result3)
+                                        .addGap(380, 380, 380))
+                                    .addComponent(btn_end, javax.swing.GroupLayout.Alignment.TRAILING, javax.swing.GroupLayout.PREFERRED_SIZE, 154, javax.swing.GroupLayout.PREFERRED_SIZE)))
                             .addGroup(layout.createSequentialGroup()
-                                .addComponent(btn_answer, javax.swing.GroupLayout.PREFERRED_SIZE, 123, javax.swing.GroupLayout.PREFERRED_SIZE)
-                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
-                                .addComponent(btn_back, javax.swing.GroupLayout.PREFERRED_SIZE, 123, javax.swing.GroupLayout.PREFERRED_SIZE)
-                                .addGap(263, 263, 263)
-                                .addComponent(btn_end, javax.swing.GroupLayout.PREFERRED_SIZE, 153, javax.swing.GroupLayout.PREFERRED_SIZE)))
+                                .addGap(0, 0, Short.MAX_VALUE)
+                                .addComponent(label_resultAll)
+                                .addGap(18, 18, 18)
+                                .addComponent(label_result1)))
                         .addGap(41, 41, 41))
                     .addGroup(layout.createSequentialGroup()
                         .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
@@ -313,39 +388,50 @@ public class Design extends javax.swing.JFrame {
         layout.setVerticalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(layout.createSequentialGroup()
+                .addGap(4, 4, 4)
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                     .addGroup(layout.createSequentialGroup()
-                        .addContainerGap()
                         .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                             .addComponent(label_counter)
                             .addComponent(label_timer))
                         .addGap(31, 31, 31)
                         .addComponent(label_question)
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
-                        .addComponent(label_result)
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                        .addComponent(label_info_end)
+                        .addGap(20, 20, 20)
                         .addComponent(rbtn1)
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                         .addComponent(rbtn2)
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
                         .addComponent(rbtn3)
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                        .addComponent(rbtn4)
-                        .addGap(3, 3, 3)
-                        .addComponent(rbtn5)
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
-                        .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                            .addComponent(btn_answer, javax.swing.GroupLayout.PREFERRED_SIZE, 36, javax.swing.GroupLayout.PREFERRED_SIZE)
-                            .addComponent(btn_end, javax.swing.GroupLayout.PREFERRED_SIZE, 36, javax.swing.GroupLayout.PREFERRED_SIZE)
-                            .addComponent(btn_back, javax.swing.GroupLayout.PREFERRED_SIZE, 36, javax.swing.GroupLayout.PREFERRED_SIZE)))
+                        .addComponent(rbtn4))
                     .addGroup(layout.createSequentialGroup()
                         .addGap(167, 167, 167)
                         .addComponent(btn_exit, javax.swing.GroupLayout.PREFERRED_SIZE, 36, javax.swing.GroupLayout.PREFERRED_SIZE)
                         .addGap(18, 18, 18)
                         .addComponent(btn_check, javax.swing.GroupLayout.PREFERRED_SIZE, 36, javax.swing.GroupLayout.PREFERRED_SIZE)))
+                .addGap(3, 3, 3)
+                .addComponent(rbtn5)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
+                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
+                    .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                        .addComponent(btn_answer, javax.swing.GroupLayout.PREFERRED_SIZE, 48, javax.swing.GroupLayout.PREFERRED_SIZE)
+                        .addComponent(btn_red, javax.swing.GroupLayout.PREFERRED_SIZE, 48, javax.swing.GroupLayout.PREFERRED_SIZE))
+                    .addComponent(btn_end, javax.swing.GroupLayout.PREFERRED_SIZE, 48, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addComponent(btn_green, javax.swing.GroupLayout.PREFERRED_SIZE, 48, javax.swing.GroupLayout.PREFERRED_SIZE))
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                .addComponent(jScrollPane2, javax.swing.GroupLayout.PREFERRED_SIZE, 75, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addGap(23, 23, 23))
+                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, layout.createSequentialGroup()
+                        .addComponent(jScrollPane2, javax.swing.GroupLayout.PREFERRED_SIZE, 75, javax.swing.GroupLayout.PREFERRED_SIZE)
+                        .addGap(23, 23, 23))
+                    .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, layout.createSequentialGroup()
+                        .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                            .addComponent(label_result1)
+                            .addComponent(label_result2)
+                            .addComponent(label_result3)
+                            .addComponent(label_resultAll))
+                        .addGap(36, 36, 36))))
         );
 
         pack();
@@ -359,12 +445,14 @@ public class Design extends javax.swing.JFrame {
             rbtn4.setSelected(false);
             rbtn5.setSelected(false);
             btn_answer.setEnabled(true);
+            btn_green.setEnabled(true);
         } else {
             rbtn1.setEnabled(true);
             rbtn3.setEnabled(true);
             rbtn4.setEnabled(true);
             rbtn5.setEnabled(true);
             btn_answer.setEnabled(false);
+            btn_green.setEnabled(false);
         }
     }//GEN-LAST:event_rbtn2ActionPerformed
 
@@ -375,12 +463,14 @@ public class Design extends javax.swing.JFrame {
             rbtn4.setSelected(false);
             rbtn5.setSelected(false);
             btn_answer.setEnabled(true);
+            btn_green.setEnabled(true);
         } else {
             rbtn2.setEnabled(true);
             rbtn1.setEnabled(true);
             rbtn4.setEnabled(true);
             rbtn5.setEnabled(true);
             btn_answer.setEnabled(false);
+            btn_green.setEnabled(false);
         }
     }//GEN-LAST:event_rbtn3ActionPerformed
 
@@ -391,12 +481,14 @@ public class Design extends javax.swing.JFrame {
             rbtn1.setSelected(false);
             rbtn5.setSelected(false);
             btn_answer.setEnabled(true);
+            btn_green.setEnabled(true);
         } else {
             rbtn2.setEnabled(true);
             rbtn3.setEnabled(true);
             rbtn1.setEnabled(true);
             rbtn5.setEnabled(true);
             btn_answer.setEnabled(false);
+            btn_green.setEnabled(false);
         }
     }//GEN-LAST:event_rbtn4ActionPerformed
 
@@ -406,9 +498,38 @@ public class Design extends javax.swing.JFrame {
 
     private void btn_endActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btn_endActionPerformed
         saveData();
-        label_result.setVisible(true);
-        label_result.setText("Ви відповіли вірно на " + countRightAnswers
-                + " запитань із " + Constants.COUNT_OF_QUESTIONS + ".");
+
+        label_resultAll.setVisible(true);
+        label_result1.setVisible(true);
+        label_result2.setVisible(true);
+        label_result3.setVisible(true);
+        label_info_end.setVisible(true);
+
+        label_info_end.setText(AuthForm.fullName + " " + AuthForm.group);
+
+        label_resultAll.setText(
+                "Ви відповіли вірно на " + (countRightAnswersFirstSection
+                + countRightAnswersSecondSection + countRightAnswersThirdSection)
+                + " запитань із " + Constants.COUNT_OF_QUESTIONS + "."
+        );
+
+        label_result1.setText(
+                MedicineTests.sectionTheme.get(0)
+                + ": " + countRightAnswersFirstSection
+                + "/" + Constants.COUNT_OF_QUESTIONS_FROM_ONE_FILE
+        );
+
+        label_result2.setText(
+                MedicineTests.sectionTheme.get(1)
+                + ": " + countRightAnswersSecondSection
+                + "/" + Constants.COUNT_OF_QUESTIONS_FROM_ONE_FILE
+        );
+
+        label_result3.setText(
+                MedicineTests.sectionTheme.get(2)
+                + ": " + countRightAnswersThirdSection
+                + "/" + Constants.COUNT_OF_QUESTIONS_FROM_ONE_FILE
+        );
 
         timer.stop();
         rbtn1.setVisible(false);
@@ -417,7 +538,8 @@ public class Design extends javax.swing.JFrame {
         rbtn4.setVisible(false);
         rbtn5.setVisible(false);
         btn_answer.setVisible(false);
-        btn_back.setVisible(false);
+        btn_green.setVisible(false);
+        btn_red.setVisible(false);
         label_counter.setVisible(false);
         label_question.setVisible(false);
 
@@ -425,17 +547,25 @@ public class Design extends javax.swing.JFrame {
         btn_check.setVisible(true);
         btn_exit.setVisible(true);
 
-        this.setSize(480, 270);
+        this.setSize(480, 290);
         this.setLocationRelativeTo(null);
         setLayout(null);
 
-        label_result.setSize(350, 35);
+        label_resultAll.setSize(350, 35);
+        label_result1.setSize(350, 35);
+        label_result2.setSize(350, 35);
+        label_result3.setSize(350, 35);
+        label_info_end.setSize(350, 35);
         btn_exit.setSize(100, 35);
         btn_check.setSize(180, 35);
 
-        label_result.setLocation(40, 20);
-        btn_exit.setLocation(330, 165);
-        btn_check.setLocation(145, 165);
+        label_info_end.setLocation(40, 20);
+        label_resultAll.setLocation(40, 50);
+        label_result1.setLocation(40, 80);
+        label_result2.setLocation(40, 110);
+        label_result3.setLocation(40, 140);
+        btn_exit.setLocation(330, 185);
+        btn_check.setLocation(145, 185);
     }//GEN-LAST:event_btn_endActionPerformed
 
     private void btn_checkActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btn_checkActionPerformed
@@ -445,11 +575,16 @@ public class Design extends javax.swing.JFrame {
         }
 
         btn_answer.setVisible(false);
+        btn_green.setVisible(false);
         btn_check.setVisible(false);
         btn_end.setVisible(false);
-        label_result.setVisible(false);
+        label_info_end.setVisible(false);
         label_timer.setVisible(false);
         btn_exit.setVisible(false);
+        label_resultAll.setVisible(false);
+        label_result1.setVisible(false);
+        label_result2.setVisible(false);
+        label_result3.setVisible(false);
 
         jScrollPane2.setVisible(true);
 
@@ -471,7 +606,11 @@ public class Design extends javax.swing.JFrame {
         jScrollPane2.setSize(width - 4, height - 32);
         jScrollPane2.setLocation(0, 0);
 
-        List<String> sections = Arrays.asList("^Перша секція запитань.\n\n", "^Друга секція запитань.\n\n", "^Третя секція запитань.\n\n");
+        List<String> sections = Arrays.asList(
+                "^" + MedicineTests.sectionTheme.get(0) + "\n\n",
+                "^" + MedicineTests.sectionTheme.get(1) + "\n\n",
+                "^" + MedicineTests.sectionTheme.get(2) + "\n\n"
+        );
 
         for (int i = 0; i < btnNumber.size(); i++) {
             if (i < Constants.COUNT_OF_QUESTIONS_FROM_ONE_FILE) {
@@ -548,26 +687,118 @@ public class Design extends javax.swing.JFrame {
             rbtn4.setSelected(false);
             rbtn1.setSelected(false);
             btn_answer.setEnabled(true);
+            btn_green.setEnabled(true);
         } else {
             rbtn2.setEnabled(true);
             rbtn3.setEnabled(true);
             rbtn4.setEnabled(true);
             rbtn1.setEnabled(true);
             btn_answer.setEnabled(false);
+            btn_green.setEnabled(false);
         }
     }//GEN-LAST:event_rbtn5ActionPerformed
 
-    private void btn_backActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btn_backActionPerformed
+    private void btn_answerActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btn_answerActionPerformed
+        answerClick();
+    }//GEN-LAST:event_btn_answerActionPerformed
+
+    private void rbtn1ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_rbtn1ActionPerformed
+        if (rbtn1.isSelected()) {
+            rbtn2.setSelected(false);
+            rbtn3.setSelected(false);
+            rbtn4.setSelected(false);
+            rbtn5.setSelected(false);
+            btn_answer.setEnabled(true);
+            btn_green.setEnabled(true);
+        } else {
+            rbtn2.setEnabled(true);
+            rbtn3.setEnabled(true);
+            rbtn4.setEnabled(true);
+            rbtn5.setEnabled(true);
+            btn_answer.setEnabled(false);
+            btn_green.setEnabled(false);
+        }
+    }//GEN-LAST:event_rbtn1ActionPerformed
+
+    private void btn_redActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btn_redActionPerformed
         x--;
         makeProgram();
 
         btn_answer.setEnabled(true);
+        btn_green.setEnabled(true);
 
         setPreviousRadioButton();
-    }//GEN-LAST:event_btn_backActionPerformed
+    }//GEN-LAST:event_btn_redActionPerformed
 
-    private void btn_answerActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btn_answerActionPerformed
+    private void btn_greenActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btn_greenActionPerformed
+        answerClick();
+    }//GEN-LAST:event_btn_greenActionPerformed
 
+    private String outResult(ArrayList<General> list, int i) {
+        StringBuilder viewResult = new StringBuilder();
+
+        String question = list
+                .get(i)
+                .getQuestion();
+
+        viewResult.append(question).append("\n\n");
+
+        for (int j = 0; j < 5; j++) {
+            String answerWithBrackets = list
+                    .get(i)
+                    .getAnswers()
+                    .get(j)
+                    .keySet()
+                    .toString();
+
+            Boolean answerState = list
+                    .get(i)
+                    .getAnswers()
+                    .get(j)
+                    .values()
+                    .stream()
+                    .findFirst()
+                    .get();
+
+            String answer = removeBrackets(answerWithBrackets);
+
+            if (answerState == true) {
+                viewResult.append("$").append(answer).append("\n");
+
+                trueAnswersSize.add(answerWithBrackets.length());
+            } else if (answerState == false && j + 1 == btnNumber.get(count)) {
+                viewResult.append("`").append(answer).append("\n");
+
+                falseAnswersSize.add(answerWithBrackets.length());
+
+            } else {
+                viewResult.append(answer).append("\n");
+            }
+        }
+        viewResult.append('\n');
+
+        count++;
+
+        return viewResult.toString();
+    }
+
+    private void setTextToComponents(ArrayList<General> list, List<JRadioButton> radioButtons, int y) {
+        label_question.setText("<html><p style=\"width:530px\">" + list.get(y).getQuestion() + "</p></html>");
+
+        for (int i = 0; i < 5; i++) {
+            String answerWithBrackets = list
+                    .get(y)
+                    .getAnswers()
+                    .get(i)
+                    .keySet()
+                    .toString();
+
+            String answer = removeBrackets(answerWithBrackets);
+            radioButtons.get(i).setText(answer);
+        }
+    }
+
+    private void answerClick() {
         if (rbtn1.isSelected()) {
             if (!btnNumber.isEmpty() && btnNumber.size() != x) {
                 btnNumber.remove(x);
@@ -597,86 +828,6 @@ public class Design extends javax.swing.JFrame {
 
         x++;
         makeProgram();
-    }//GEN-LAST:event_btn_answerActionPerformed
-
-    private void rbtn1ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_rbtn1ActionPerformed
-        if (rbtn1.isSelected()) {
-            rbtn2.setSelected(false);
-            rbtn3.setSelected(false);
-            rbtn4.setSelected(false);
-            rbtn5.setSelected(false);
-            btn_answer.setEnabled(true);
-        } else {
-            rbtn2.setEnabled(true);
-            rbtn3.setEnabled(true);
-            rbtn4.setEnabled(true);
-            rbtn5.setEnabled(true);
-            btn_answer.setEnabled(false);
-        }
-    }//GEN-LAST:event_rbtn1ActionPerformed
-
-    private String outResult(ArrayList<General> list, int i) {
-        StringBuilder viewResult = new StringBuilder();
-
-        String question = list
-                .get(i)
-                .getQuestion();
-
-        viewResult.append(question).append("\n\n");
-
-        for (int j = 0; j < 5; j++) {
-            String answerWithBrackets = list
-                    .get(i)
-                    .getAnswers()
-                    .get(j)
-                    .keySet()
-                    .toString();
-
-            Boolean answerState = list
-                    .get(i)
-                    .getAnswers()
-                    .get(j)
-                    .values()
-                    .stream()
-                    .findFirst()
-                    .get();
-
-            String answer = removeBrackets(answerWithBrackets);
-            
-            if (answerState == true) {
-                viewResult.append("$").append(answer).append("\n");
-                
-                trueAnswersSize.add(answerWithBrackets.length());
-            } else if (answerState == false && j + 1 == btnNumber.get(count)) {
-                viewResult.append("`").append(answer).append("\n");
-                
-                falseAnswersSize.add(answerWithBrackets.length());
-                
-            } else {
-                viewResult.append(answer).append("\n");
-            }
-        }
-        viewResult.append('\n');
-        
-        count++;
-        
-        return viewResult.toString();
-    }
-
-    private void setTextToComponents(ArrayList<General> list, List<JRadioButton> radioButtons, int y) {
-        label_question.setText("<html><p style=\"width:530px\">" + list.get(y).getQuestion() + "</p></html>");
-
-        for (int i = 0; i < 5; i++) {
-            String answerWithBrackets = list
-                    .get(y)
-                    .getAnswers()
-                    .get(i)
-                    .keySet()
-                    .toString();
-
-            String answer = removeBrackets(answerWithBrackets);
-            radioButtons.get(i).setText(answer);
-        }
     }
 
     private void setPreviousRadioButton() {
@@ -701,9 +852,6 @@ public class Design extends javax.swing.JFrame {
         return answer.substring(1, answer.length() - 1);
     }
 
-    /**
-     * @param args the command line arguments
-     */
     public static void main(String args[]) {
         /* Set the Nimbus look and feel */
         //<editor-fold defaultstate="collapsed" desc=" Look and feel setting code (optional) ">
@@ -732,15 +880,20 @@ public class Design extends javax.swing.JFrame {
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JButton btn_answer;
-    private javax.swing.JButton btn_back;
     private javax.swing.JButton btn_check;
     private javax.swing.JButton btn_end;
     private javax.swing.JButton btn_exit;
+    private javax.swing.JButton btn_green;
+    private javax.swing.JButton btn_red;
     private javax.swing.JScrollPane jScrollPane2;
     private javax.swing.JTextPane jTextPane1;
     private javax.swing.JLabel label_counter;
+    private javax.swing.JLabel label_info_end;
     private javax.swing.JLabel label_question;
-    private javax.swing.JLabel label_result;
+    private javax.swing.JLabel label_result1;
+    private javax.swing.JLabel label_result2;
+    private javax.swing.JLabel label_result3;
+    private javax.swing.JLabel label_resultAll;
     private javax.swing.JLabel label_timer;
     private javax.swing.JRadioButton rbtn1;
     private javax.swing.JRadioButton rbtn2;

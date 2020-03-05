@@ -22,23 +22,25 @@ public class MedicineTests {
     public static ArrayList<General> secondSection;
     public static ArrayList<General> thirdSection;
 
+    public static ArrayList<String> sectionTheme = new ArrayList<>();
+
     public static void main(String[] args) throws IOException {
 
         MedicineTests tests = new MedicineTests();
 
-        ArrayList<Integer> listRandomRangesUkr = tests.randomQuestionsNumbers(tests.loadFiles(new File(Constants.NAME_UKR).getAbsolutePath()));
-        ArrayList<Integer> listRandomRangesEng = tests.randomQuestionsNumbers(tests.loadFiles(new File(Constants.NAME_ENG).getAbsolutePath()));
-        ArrayList<Integer> listRandomRangesUkr2 = tests.randomQuestionsNumbers(tests.loadFiles(new File(Constants.NAME_UKR2).getAbsolutePath()));
+        ArrayList<Integer> listRandomRangesUkr = tests.randomQuestionsNumbers(tests.loadFiles(new File(Constants.BLOCK_1).getAbsolutePath()));
+        ArrayList<Integer> listRandomRangesEng = tests.randomQuestionsNumbers(tests.loadFiles(new File(Constants.BLOCK_2).getAbsolutePath()));
+        ArrayList<Integer> listRandomRangesUkr2 = tests.randomQuestionsNumbers(tests.loadFiles(new File(Constants.BLOCK_3).getAbsolutePath()));
 
-        ArrayList<String> listDataUkr = tests.readFile(new File(Constants.NAME_UKR).getAbsolutePath());
-        ArrayList<String> listDataEng = tests.readFile(new File(Constants.NAME_ENG).getAbsolutePath());
-        ArrayList<String> listDataUkr2 = tests.readFile(new File(Constants.NAME_UKR2).getAbsolutePath());
+        ArrayList<String> listDataUkr = tests.readFile(new File(Constants.BLOCK_1).getAbsolutePath());
+        ArrayList<String> listDataEng = tests.readFile(new File(Constants.BLOCK_2).getAbsolutePath());
+        ArrayList<String> listDataUkr2 = tests.readFile(new File(Constants.BLOCK_3).getAbsolutePath());
 
         firstSection = tests.listReadyQuestions(listDataUkr, listRandomRangesUkr);
         secondSection = tests.listReadyQuestions(listDataEng, listRandomRangesEng);
         thirdSection = tests.listReadyQuestions(listDataUkr2, listRandomRangesUkr2);
 
-        new Design().setVisible(true);
+        new AuthForm().setVisible(true);
     }
 
     private int loadFiles(String path) {
@@ -52,6 +54,7 @@ public class MedicineTests {
 
             File file = new File(path);
             FileReader fr = new FileReader(file);
+            
             try (BufferedReader reader = new BufferedReader(fr)) {
                 String lines = "";
 
@@ -94,17 +97,29 @@ public class MedicineTests {
 
     private ArrayList<String> readFile(String filePath) throws IOException {
         ArrayList<String> data = new ArrayList<>();
-        File file = new File(filePath);
-        FileReader fr = new FileReader(file);
-        try (BufferedReader reader = new BufferedReader(fr)) {
-            String lines = reader.readLine();
-            data.add(lines);
 
-            while (lines != null) {
-                lines = reader.readLine();
-                data.add(lines);
+        try {
+            System.setProperty("file.encoding", "UTF-8");
+            Field charset = Charset.class.getDeclaredField("defaultCharset");
+            charset.setAccessible(true);
+            charset.set(null, null);
+
+            File file = new File(filePath);
+            FileReader fr = new FileReader(file);
+
+            try (BufferedReader reader = new BufferedReader(fr)) {
+                String lines = reader.readLine();
+                sectionTheme.add(lines);
+
+                while (lines != null) {
+                    lines = reader.readLine();
+                    data.add(lines);
+                }
             }
+        } catch (IOException | IllegalAccessException | IllegalArgumentException | NoSuchFieldException | SecurityException ex) {
+            System.out.println(ex.getMessage());
         }
+
         return data;
     }
 
